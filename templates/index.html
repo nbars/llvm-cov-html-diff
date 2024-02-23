@@ -27,11 +27,11 @@
                 <template v-for="report in get_file_reports(file_name)">
                     <tr class="light-row">
                     <td>{{ report.report_name }}</td>
-                    <td :class="{'column-entry-red': report.function_cov.covered == 0 && report.function_cov.total > 0}" >({{ report.function_cov.covered }} of {{
+                    <td :class="{'column-entry-red': report.function_cov.covered == 0 && report.function_cov.total > 0, 'column-entry-green': report.function_cov.covered == report.function_cov.total}">({{ report.function_cov.covered }} of {{
                             report.function_cov.total }}) </td>
-                    <td :class="{'column-entry-red': report.line_cov.covered == 0 && report.line_cov.total > 0}"> ({{ report.line_cov.covered }} of {{ report.line_cov.total }}) </td>
-                    <td :class="{'column-entry-red': report.region_cov.covered == 0 && report.region_cov.total > 0}"> ({{ report.region_cov.covered }} of {{ report.region_cov.total }}) </td>
-                    <td :class="{'column-entry-red': report.branch_cov.covered == 0 && report.branch_cov.total > 0}"> ({{ report.branch_cov.covered }} of {{ report.branch_cov.total }}) </td>
+                    <td :class="{'column-entry-red': report.line_cov.covered == 0 && report.line_cov.total > 0, 'column-entry-green': report.line_cov.covered == report.line_cov.total}"> ({{ report.line_cov.covered }} of {{ report.line_cov.total }}) </td>
+                    <td :class="{'column-entry-red': report.region_cov.covered == 0 && report.region_cov.total > 0, 'column-entry-green': report.region_cov.covered == report.region_cov.total}"> ({{ report.region_cov.covered }} of {{ report.region_cov.total }}) </td>
+                    <td :class="{'column-entry-red': report.branch_cov.covered == 0 && report.branch_cov.total > 0, 'column-entry-green': report.branch_cov.covered == report.branch_cov.total}"> ({{ report.branch_cov.covered }} of {{ report.branch_cov.total }}) </td>
                     </tr>
                 </template>
             </template>
