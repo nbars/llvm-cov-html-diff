@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Coverage Report</title>
+    <link rel='stylesheet' type='text/css' href='style.css'>
+</head>
+
+<body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        <table>
+            <tr class="light-row">
+                <td class="column-entry-bold">Filename</td>
+                <td class="column-entry-bold">Function Coverage</td>
+                <td class="column-entry-bold">Line Coverage</td>
+                <td class="column-entry-bold">Region Coverage</td>
+                <td class="column-entry-bold">Branch Coverage</td>
+            </tr>
+            <template v-for="file_name in files">
+                <tr class="light-row">
+                    <td rowspan="1"><a :href="file_name">{{ file_name }}</a></td>
+                    <td colspan="4"></td>
+                </tr>
+                <template v-for="report in get_file_reports(file_name)">
+                    <tr class="light-row">
+                    <td>{{ report.report_name }}</td>
+                    <td :class="{'column-entry-red': report.function_cov.covered == 0 && report.function_cov.total > 0}" >({{ report.function_cov.covered }} of {{
+                            report.function_cov.total }}) </td>
+                    <td :class="{'column-entry-red': report.line_cov.covered == 0 && report.line_cov.total > 0}"> ({{ report.line_cov.covered }} of {{ report.line_cov.total }}) </td>
+                    <td :class="{'column-entry-red': report.region_cov.covered == 0 && report.region_cov.total > 0}"> ({{ report.region_cov.covered }} of {{ report.region_cov.total }}) </td>
+                    <td :class="{'column-entry-red': report.branch_cov.covered == 0 && report.branch_cov.total > 0}"> ({{ report.branch_cov.covered }} of {{ report.branch_cov.total }}) </td>
+                    </tr>
+                </template>
+            </template>
+
+        </table>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+
+        createApp({
+            methods: {
+                get_file_reports: function(file_name) {
+                    let files = this.indexed_files.filter((file) => file.file_name == file_name);
+                    return files.sort((a, b) => b.branch_cov.covered - a.branch_cov.covered)
+                },
+            },
+            data() {
+                <!-- include text files here and update them on deploy -->
+                return {
+                    indexed_files: @{ indexed_files | safe }@,
+                    files: @{ files | safe}@,
+                    report_names: @{ report_names | safe}@,
+                }
+            },
+      }).mount('#app')
+    </script>
+</body>
+
+</html>
