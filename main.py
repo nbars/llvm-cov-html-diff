@@ -7,7 +7,7 @@ from typing import List, Optional
 import re
 import shutil
 
-from parse import ParsedLLVMCovReport
+from parse import ParsedHtmlLLVMCovReport
 from merge import MergeReports
 
 
@@ -19,8 +19,8 @@ def main():
         "test_reports/sgfuzz-mosquitto-pub_mosquitto_1-86400s-1_results/html-report"
     )
 
-    report_a = ParsedLLVMCovReport("FT", report_a)
-    report_b = ParsedLLVMCovReport("SGFuzz", report_b)
+    report_a = ParsedHtmlLLVMCovReport("FT", report_a)
+    report_b = ParsedHtmlLLVMCovReport("SGFuzz", report_b)
 
     out_dir = Path("out_report")
     shutil.rmtree(out_dir, ignore_errors=True)

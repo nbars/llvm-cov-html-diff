@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Coverage Report</title>
+    <link rel='stylesheet' type='text/css' href='"@{ style_css_path | safe }@"'>
+</head>
+
+<body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <div id="app">
+        <div class="source-name-title">
+            {{ coverage_a.absolute_source_file_path }}
+        </div>
+
+        <table>
+            <tr>
+                <td class="column-entry-bold">Line</td>
+                <td class="column-entry-bold">Source</td>
+            </tr>
+            <template v-for="line in coverage_a.lines">
+                <tr>
+                    <td rowspan="1"><a href="#{{line.line}}">{{ line.line }}</a></td>
+                    <td class="tooltip" :style="{ 'background-color': colorize_line(line.line) }"><span class="tooltip-content" v-if="get_line_tooltip(line.line)" v-html="get_line_tooltip(line.line)"></span><pre v-html="overlay_partial_coverage(line.line)"></pre></td>
+                </tr>
+            </template>
+
+        </table>
+
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+
+        createApp({
+            methods: {
+                overlay_partial_coverage: function(line_idx) {
+                    let a = this.coverage_a.lines[line_idx-1];
+                    let b = this.coverage_b.lines[line_idx-1];
+                    if (a.exec_cnt == "null" ||  a.exec_cnt == 0 || b.exec_cnt == 0 || a.uncovered_regions.length == 0 && b.uncovered_regions.length == 0) {
+                        return a.text;
+                    }
+                    a_highlights = new Map()
+                    b_highlights = new Map()
+                    a.uncovered_regions.forEach(item => a_highlights.set(item.start_col, item.length))
+                    b.uncovered_regions.forEach(item => b_highlights.set(item.start_col, item.length))
+
+                    line = a.text;
+                    out_line = "";
+                    for(idx = 0; idx < line.length; idx++) {
+                        if (a_highlights.has(idx) && b_highlights.has(idx)) {
+                            let len = a_highlights.get(idx);
+                            out_line += "<span class=\"no-cov-both tooltip\"><span class=tooltip-content>Not covered</span>" + line.slice(idx, idx+len)  + "</span>";
+                            idx += len - 1;
+                        } else if (a_highlights.has(idx)) {
+                            let len = a_highlights.get(idx);
+                            out_line += "<span class=\"no-cov-a tooltip\"><span class=tooltip-content>Covered by: " + this.coverage_b_name + "</span>" + line.slice(idx, idx+len)  + "</span>";
+                            idx += len - 1;
+                        } else if (b_highlights.has(idx)) {
+                            let len = b_highlights.get(idx);
+                            out_line += "<span class=\"no-cov-b tooltip\"><span class=tooltip-content>Covered by: " + this.coverage_a_name + "</span>" + line.slice(idx, idx+len)  + "</span>";
+                            idx += len - 1
+                        } else {
+                            out_line += line[idx];
+                        }
+                    }
+
+                    return out_line;
+                },
+                get_line_tooltip: function(line_idx) {
+                    let a = this.coverage_a.lines[line_idx-1];
+                    let b = this.coverage_b.lines[line_idx-1];
+                    if (a.exec_cnt == "null") {
+                        return null;
+                    } else if (a.exec_cnt > 0 && b.exec_cnt > 0 && a.uncovered_regions.length == 0 && b.uncovered_regions.length == 0) {
+                        // covered by both completely
+                        return "Covered by: " + this.coverage_a_name + ", " + this.coverage_b_name;
+                    } else if (a.exec_cnt == 0 && b.exec_cnt == 0){
+                        // not covered by any
+                        return "Not covered";
+                    } else if (a.exec_cnt > 0 && b.exec_cnt == 0) {
+                        // covered only by a
+                        return "Covered by: " + this.coverage_a_name;
+                    } else if (a.exec_cnt == 0 && b.exec_cnt > 0) {
+                        // covered only by b
+                        return "Covered by: " + this.coverage_b_name;
+                    } else {
+                        return null;
+                    }
+                },
+                colorize_line: function(line_idx) {
+                    let a = this.coverage_a.lines[line_idx-1];
+                    let b = this.coverage_b.lines[line_idx-1];
+                    if (a.exec_cnt == "null") {
+                        return "#dadada";
+                    } else if (a.exec_cnt > 0 && b.exec_cnt > 0 && a.uncovered_regions.length == 0 && b.uncovered_regions.length == 0) {
+                        // covered by both completely
+                        return "rgba(0,175,44,0.5)";
+                    } else if (a.exec_cnt == 0 && b.exec_cnt == 0){
+                        // not covered by any
+                        return "rgba(219,10,10,0.5)";
+                    } else if (a.exec_cnt > 0 && b.exec_cnt == 0) {
+                        // covered only by a
+                        return "rgba(252,186,3,0.5)";
+                    } else if (a.exec_cnt == 0 && b.exec_cnt > 0) {
+                        // covered only by b
+                        return "rgba(252,3,244,0.5)";
+                    } else {
+                        return "#ffffff"
+                    }
+
+                },
+            },
+            data() {
+                return {
+                    coverage_a_name: "@{ coverage_a_name | safe }@",
+                    coverage_b_name: "@{ coverage_b_name | safe }@",
+                    coverage_a: "@{ coverage_a | safe }@",
+                    coverage_b: "@{ coverage_b | safe }@",
+                }
+            },
+      }).mount('#app')
+    </script>
+</body>
+
+</html>

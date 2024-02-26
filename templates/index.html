@@ -19,12 +19,12 @@
                 <td class="column-entry-bold">Region Coverage</td>
                 <td class="column-entry-bold">Branch Coverage</td>
             </tr>
-            <template v-for="file_name in files">
+            <template v-for="rel_src_path in files">
                 <tr class="light-row">
-                    <td rowspan="1"><a :href="file_name">{{ file_name }}</a></td>
+                    <td rowspan="1"><a :href="rel_src_to_href(rel_src_path)">{{ rel_src_path }}</a></td>
                     <td colspan="4"></td>
                 </tr>
-                <template v-for="report in get_file_reports(file_name)">
+                <template v-for="report in get_file_reports(rel_src_path)">
                     <tr class="light-row">
                     <td>{{ report.report_name }}</td>
                     <td :class="{'column-entry-red': report.function_cov.covered == 0 && report.function_cov.total > 0, 'column-entry-green': report.function_cov.covered == report.function_cov.total}">({{ report.function_cov.covered }} of {{
@@ -44,17 +44,20 @@
 
         createApp({
             methods: {
-                get_file_reports: function(file_name) {
-                    let files = this.indexed_files.filter((file) => file.file_name == file_name);
+                get_file_reports: function(rel_src_path) {
+                    let files = this.indexed_files.filter((file) => file.rel_src_path == rel_src_path);
                     return files.sort((a, b) => b.branch_cov.covered - a.branch_cov.covered)
                 },
+                rel_src_to_href: function(rel_src_path) {
+                    return "coverage/" + rel_src_path + ".html";
+                }
             },
             data() {
                 <!-- include text files here and update them on deploy -->
                 return {
-                    indexed_files: @{ indexed_files | safe }@,
-                    files: @{ files | safe}@,
-                    report_names: @{ report_names | safe}@,
+                    indexed_files: "@{ indexed_files | safe }@",
+                    files: "@{ files | safe}@",
+                    report_names: "@{ report_names | safe}@",
                 }
             },
       }).mount('#app')
