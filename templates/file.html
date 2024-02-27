@@ -22,7 +22,7 @@
             </tr>
             <template v-for="line in coverage_a.lines">
                 <tr>
-                    <td rowspan="1"><a href="#{{line.line}}">{{ line.line }}</a></td>
+                    <td rowspan="1"><a :id="'line-' + line.line" :href="'#line-' + line.line">{{ line.line }}</a></td>
                     <td class="tooltip" :style="{ 'background-color': colorize_line(line.line) }"><span class="tooltip-content" v-if="get_line_tooltip(line.line)" v-html="get_line_tooltip(line.line)"></span><pre v-html="overlay_partial_coverage(line.line)"></pre></td>
                 </tr>
             </template>
